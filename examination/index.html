@@ -164,6 +164,13 @@
 
 <body>
     <script>
+        var number = [
+            ["〇times a day", "breakfast", "lunch", "dinner", "bedtime", "before", "after", "none"],
+            ["每天〇次", "早餐", "午餐", "晚餐", "睡前", "之前", "之后", "无"],
+            ["〇 Mal am Tag", "Frühstück", "Mittagessen", "Abendessen", "Schlafenszeit", "vorher", "nachher",
+                "keine"]
+        ]
+
         var languageArray = ["en-US", "zh", "de"]
         var dataArray = []
         var localData = [];
@@ -215,10 +222,87 @@
             var html = '';
             for (var i = 0; i < len; i++) {
                 var answer = "";
-                for (var j = 0; j < 6; j++) {
-                    if (localData[i].data[j].length > 0) {
-                        answer +=
-                            `<div class="smallB" id="B${i}-${j}" ><p class="ja_text tlans">${localData[i].data[j]}</p><p class="lan"  >${d[i].data[j]}</p></div>`
+                if (localData[i].data[0] == "number") {
+
+                    answer += `<label for="timesPerDay">1日〇回/${number[indexLanguage][0]}：</label>
+        <select id="timesPerDay" name="timesPerDay">
+            <!-- 1〜10まで選択可能 -->
+            <option value="" disabled selected>選択してください</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+        </select>
+        <br><br>
+
+        <!-- 朝食 -->
+        <fieldset>
+            <legend>朝食/${number[indexLanguage][1]}</legend>
+            <label>
+                <input type="radio" name="breakfast" value="before"> 前/${number[indexLanguage][5]}
+            </label>
+            <label>
+                <input type="radio" name="breakfast" value="after"> 後/${number[indexLanguage][6]}
+            </label>
+            <label>
+                <input type="radio" name="breakfast" value="before"> 無し/${number[indexLanguage][7]}
+            </label>
+        </fieldset>
+
+        <!-- 昼食 -->
+        <fieldset>
+            <legend>昼食/${number[indexLanguage][2]}</legend>
+            <label>
+                <input type="radio" name="lunch" value="before"> 前/${number[indexLanguage][5]}
+            </label>
+            <label>
+                <input type="radio" name="lunch" value="after"> 後/${number[indexLanguage][6]}
+            </label>
+            <label>
+                <input type="radio" name="breakfast" value="before"> 無し/${number[indexLanguage][7]}
+            </label>
+        </fieldset>
+
+        <!-- 夕食 -->
+        <fieldset>
+            <legend>夕食/${number[indexLanguage][3]}</legend>
+            <label>
+                <input type="radio" name="dinner" value="before"> 前/${number[indexLanguage][5]}
+            </label>
+            <label>
+                <input type="radio" name="dinner" value="after"> 後/${number[indexLanguage][6]}
+            </label>
+            <label>
+                <input type="radio" name="breakfast" value="before"> 無し/${number[indexLanguage][7]}
+            </label>
+        </fieldset>
+
+        <!-- 就寝時 -->
+        <fieldset>
+            <legend>就寝時/${number[indexLanguage][4]}</legend>
+            <label>
+                <input type="radio" name="bedtime" value="before"> 前/${number[indexLanguage][5]}
+            </label>
+            <label>
+                <input type="radio" name="bedtime" value="after"> 後/${number[indexLanguage][6]}
+            </label>
+            <label>
+                <input type="radio" name="breakfast" value="before"> 無し/${number[indexLanguage][7]}
+            </label>
+        </fieldset>`
+
+                } else {
+                    for (var j = 0; j < 6; j++) {
+                        if (localData[i].data[j].length > 0) {
+                            answer +=
+                                `<div class="smallB" id="B${i}-${j}" ><p class="ja_text tlans">${localData[i].data[j]}</p><p class="lan"  >${d[i].data[j]}</p></div>`
+                        }
                     }
                 }
                 html += `<div class="parent">
