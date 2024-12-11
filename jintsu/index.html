@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>陣痛カウンター</title>
+    <style>
+        body {
+            font-family: "ヒラギノ丸ゴ Pro W4", "ヒラギノ丸ゴ Pro", "Hiragino Maru Gothic Pro", "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "HG丸ｺﾞｼｯｸM-PRO", "HGMaruGothicMPRO";
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            color: #332000;
+            /* 画面全体の高さを指定 */
+        }
+
+        #base {
+            width: 100%;
+            height: 80vh;
+            /* 画面の高さの80% */
+            overflow-y: auto;
+            /* 縦方向にスクロールを許可 */
+            display: flex;
+            flex-direction: column;
+        }
+
+        #contraction-table {
+            width: 90%;
+            margin: 20px auto 0;
+            border-collapse: collapse;
+        }
+
+        #contraction-table th {
+            background-color: #e0e0e0;
+        }
+
+
+
+        #contraction-table tr:nth-child(2n+1) td:nth-child(3) {
+            border: 1px solid #ffecf5;
+            padding: 1px;
+            /* height: 30px; */
+            display: block;
+            border-radius: 20px;
+            width: 81%;
+            margin: 3%;
+            background-color: #ffecf5;
+        }
+
+        #contraction-table tr:nth-child(2n) {
+            /* 表の奇数行のみを対象に装飾するCSS */
+            background-color: #ffecf5;
+        }
+
+        #contraction-table th,
+        #contraction-table td {
+            border: none;
+            padding: 6px;
+            text-align: center;
+            width: 30%;
+        }
+
+        /*
+        #contraction-table tr:nth-child(2n+1) td:nth-child(3) {
+            text-align: left;
+        }
+
+        #contraction-table tr:nth-child(2n) td:nth-child(2)::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 70%;
+            width: 1px;
+            border-left: 1px dashed black;
+
+            padding: 26px 0;
+        }
+            */
+
+        #elapsed-time {
+            margin-top: 20px;
+            font-size: 20px;
+            text-align: center;
+        }
+
+        #start-button {
+
+            padding: 15px 30px;
+            background-color: #FF5733;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        #start-button:active {
+            background-color: #C70039;
+        }
+
+        #end-button {
+            width: 80%;
+            font-size: 20px;
+            color: #fff;
+            background-color: #6d6d9f;
+            border-radius: 20px;
+            height: 60px;
+            border: none;
+            margin: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>陣痛カウンター</h1>
+    <div id="base">
+        <table id="contraction-table">
+            <thead>
+                <tr>
+                    <th>開始日時</th>
+                    <th>持続時間</th>
+                    <th>間隔</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 新しい行がここに追加されます -->
+            </tbody>
+        </table>
+        <div id="elapsed-time"></div>
+    </div>
+    <button id="start-button">陣痛開始</button>
+    <button id="end-button">カウント終了</button>
+    <button id="save-button" style="display:none;">データ保存</button>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let startTime = null;
+            let lastEndTime = null;
+            let isTiming = false;
+            let elapsedInterval = null;
+            let currentRow = null;
+            let dataRecords = [];
+
+            const button = document.getElementById('start-button');
+            const elapsedTimeDiv = document.getElementById('elapsed-time');
+            const endButton = document.getElementById('end-button');
+            const saveButton = document.getElementById('save-button');
+
+            button.addEventListener('click', () => {
+                if (!isTiming) {
+                    // 陣痛開始
+                    startTime = new Date();
+                    button.textContent = '陣痛終了';
+                    isTiming = true;
+
+                    // 前回の「陣痛終了」からの間隔を計算
+                    let interval = '';
+                    if (lastEndTime) {
+                        const intervalDuration = (startTime - lastEndTime) / 1000; // 秒に変換
+                        interval = `${formatDuration(intervalDuration.toFixed(0))}`;
+                        dataRecords[dataRecords.length - 1]["interval"] = intervalDuration.toFixed(0)
+                        console.log(dataRecords)
+                    } else {
+                        interval = '---'; // 最初の開始時は間隔がない
+                        addIntervalRow(interval);
+                    }
+
+                    // 「間隔」を表示する行を追加
+
+
+                    // テーブルに新しい行を追加し、「開始日時」と「持続時間」を設定
+                    currentRow = addContractionRow(startTime.toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }), '計測中...');
+
+                    // 前回の「陣痛終了」からの経過時間表示をクリア
+                    clearInterval(elapsedInterval);
+                    //elapsedTimeDiv.textContent = '現在の経過時間: 0.0秒';
+                    elapsedTimeDiv.textContent = '';
+
+                    // 経過時間を更新するインターバルを開始
+                    elapsedInterval = setInterval(() => {
+                        const currentTime = new Date();
+                        const elapsedTime = (currentTime - startTime) / 1000; // 秒に変換
+                        const formattedElapsedTime = formatDuration(elapsedTime.toFixed(0));
+
+                        // 「持続時間」をリアルタイムで更新
+                        currentRow.cells[1].textContent = formattedElapsedTime;
+
+                        // 「現在の経過時間」を表示
+                        //elapsedTimeDiv.textContent = `現在の経過時間: ${formattedElapsedTime}`;
+                    }, 100); // 100ミリ秒ごとに更新
+                } else {
+                    // 陣痛終了
+                    const endTime = new Date();
+                    const duration = (endTime - startTime) / 1000; // 秒に変換
+                    console.log(duration)
+                    const formattedDuration = formatDuration(duration.toFixed(0));
+                    console.log(formattedDuration)
+                    // 最後の行の「持続時間」を最終更新
+                    currentRow.cells[1].textContent = formattedDuration;
+
+                    // データを保存する配列に追加
+                    dataRecords.push({
+                        startTime: currentRow.cells[0].textContent,
+                        duration: currentRow.cells[1].textContent,
+                    });
+                    console.log(dataRecords)
+                    lastEndTime = endTime;
+                    button.textContent = '陣痛開始';
+                    isTiming = false;
+
+                    // 経過時間のインターバルをクリア
+                    clearInterval(elapsedInterval);
+                    aa = addIntervalRow("a")
+                    // 「陣痛終了」からの経過時間を表示するインターバルを開始
+                    elapsedInterval = setInterval(() => {
+                        const currentTime = new Date();
+                        const elapsedTime = (currentTime - endTime) / 1000; // 秒に変換
+                        aa.cells[2].textContent =
+                            `${formatDuration(elapsedTime.toFixed(0))}`
+
+                        //elapsedTimeDiv.textContent =
+                        //`陣痛終了からの経過時間: ${elapsedTime.toFixed(0)}秒`; // 1桁の小数点で表示
+                    }, 100); // 100ミリ秒ごとに更新
+                }
+            });
+
+            endButton.addEventListener('click', () => {
+                // インターバルをクリアしてリアルタイム表示を終了
+                clearInterval(elapsedInterval);
+                elapsedTimeDiv.textContent = '計測終了';
+
+                // カウント終了後に「データ保存」ボタンを表示
+                //saveButton.style.display = 'block';
+            });
+
+            saveButton.addEventListener('click', () => {
+                console.log(dataRecords);
+            });
+
+            var countnumber = 0;
+
+            function formatDuration(seconds) {
+                if (seconds <= 0) return "0秒";
+
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+
+                if (minutes > 0) {
+                    return `${minutes}分${remainingSeconds}秒`;
+                } else {
+                    return `${seconds}秒`;
+                }
+            }
+
+            function addContractionRow(time, duration) {
+                const table = document.getElementById('contraction-table').getElementsByTagName('tbody')[0];
+                const newRow = table.insertRow();
+
+                const timeCell = newRow.insertCell(0);
+                const durationCell = newRow.insertCell(1);
+                const durationCell2 = newRow.insertCell(2);
+
+                timeCell.textContent = "[" + countnumber + "回目]　　" + time;
+                durationCell.textContent = duration;
+                durationCell2.textContent = "";
+                countnumber++;
+                scrollToBottom(); // 行を追加した後にスクロール
+                return newRow; // 新しく追加した行を返す
+            }
+
+            function addIntervalRow(interval) {
+                const table = document.getElementById('contraction-table').getElementsByTagName('tbody')[0];
+                const newRow = table.insertRow();
+
+                const timeCell = newRow.insertCell(0);
+                const durationCell = newRow.insertCell(1);
+                const durationCell2 = newRow.insertCell(2);
+                if (interval === "---") {
+                    var today = new Date();
+
+                    //年・月・日・曜日を取得
+                    var year = today.getFullYear();
+                    var month = today.getMonth() + 1;
+                    var day = today.getDate();
+
+
+                    //年・月・日・曜日を書き出す
+                    timeCell.textContent = year + "/" + month + "/" + day;
+                    countnumber++;
+                } else {
+                    timeCell.textContent = "";
+
+                }
+                durationCell.textContent = "";
+                durationCell2.textContent = `${formatDuration(interval)}`;
+
+                scrollToBottom(); // 行を追加した後にスクロール
+                //intervalCell.textContent = `間隔: ${interval}`;
+
+                return newRow; // 新しく追加した行を返す
+            }
+        });
+
+        function scrollToBottom() {
+            const base = document.getElementById('base');
+            base.scrollTop = base.scrollHeight;
+        }
+    </script>
+</body>
+
+</html>
