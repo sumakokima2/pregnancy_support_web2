@@ -16,7 +16,13 @@
         padding: 20px;
         background-color: #f9f9f9;
         overflow-y: auto;
+
         /* ページ全体でスクロールを有効に */
+    }
+
+    html,
+    body {
+        scroll-padding-top: 60px;
     }
 
     .tlans {
@@ -32,6 +38,7 @@
     #sample1 {
         margin-bottom: 20px;
         text-align: center;
+        margin-top: 60px;
     }
 
     .langCng {
@@ -158,17 +165,74 @@
     }
 
     .tbox {
+        position: fixed;
+        top: 0;
+    }
+
+    /* タブ全体のスタイル */
+    .tabs {
         display: flex;
+        /* 横並びにする */
+        border-bottom: 2px solid #ccc;
+        /* 下線 */
+        margin: 0;
+        padding: 0;
+    }
+
+    /* 各タブのスタイル */
+    .tab {
+        list-style: none;
+        /* 点を消す */
+        padding: 10px 20px;
+        cursor: pointer;
+        /* カーソルをポインターに */
+        border: 1px solid #ccc;
+        border-bottom: none;
+        /* 下線を消す */
+        background-color: #f9f9f9;
+        transition: background-color 0.3s;
+    }
+
+    /* ホバー時のスタイル */
+    .tab:hover {
+        background-color: #e0e0e0;
+    }
+
+    /* アクティブタブのスタイル */
+    .tab.active {
+        background-color: #ffffff;
+        font-weight: bold;
+        border-bottom: 2px solid #fff;
+        /* 下線を背景と同じ色で消す */
+    }
+
+    .category {
+
+        text-align: center;
+        margin: 20px auto 20px;
+        font-size: large;
+        background-color: #ffd3e3;
+        padding: 30px;
+        font-weight: bold;
+    }
+
+    #tab {
+        position: fixed;
+        top: 0;
+        left: 240px;
+
     }
 </style>
 
 <body>
     <script>
+        var categoryArray = [];
         var number = [
             ["〇times a day", "breakfast", "lunch", "dinner", "bedtime", "before", "after", "none"],
             ["每天〇次", "早餐", "午餐", "晚餐", "睡前", "之前", "之后", "无"],
             ["〇 Mal am Tag", "Frühstück", "Mittagessen", "Abendessen", "Schlafenszeit", "vorher", "nachher",
-                "keine"]
+                "keine"
+            ]
         ]
 
         var languageArray = ["en-US", "zh", "de"]
@@ -192,6 +256,7 @@
         }
 
         function langSet(argLang) {
+            categorycheck = []
             var elm = document.getElementsByClassName("langCng");
             for (var i = 0; i < elm.length; i++) {
 
@@ -216,7 +281,13 @@
             speechSynthesis.speak(uttr2)
         }
 
+        var categorycheck = []
+
         function createTable(d) {
+
+
+
+
 
             var len = localData.length;
             var html = '';
@@ -293,27 +364,41 @@
                 <input type="radio" name="bedtime" value="after"> 後/${number[indexLanguage][6]}
             </label>
             <label>
-                <input type="radio" name="breakfast" value="before"> 無し/${number[indexLanguage][7]}
+                <input type="radio" name="bedtime" value="before"> 無し/${number[indexLanguage][7]}
             </label>
         </fieldset>`
 
                 } else {
-                    for (var j = 0; j < 6; j++) {
+                    for (var j = 0; j < localData[i].data.length; j++) {
                         if (localData[i].data[j].length > 0) {
                             answer +=
                                 `<div class="smallB" id="B${i}-${j}" ><p class="ja_text tlans">${localData[i].data[j]}</p><p class="lan"  >${d[i].data[j]}</p></div>`
                         }
                     }
                 }
-                html += `<div class="parent">
+                if (categorycheck.indexOf(localData[i].type) == -1) {
+                    var id = categorycheck.length
+                    html += `<div id = "category${id}" class="category">${localData[i].type}</div>`
+                    var id1 = categoryArray.indexOf(localData[i].type)
+                    categorycheck.push(localData[i].type)
+                }
+
+                if (localData[i].category) {
+                    html += `<div class="parent">
                     <div class ="item _A"><div class = "buttonA" id = "A${i}"><p class="tlans">${localData[i].category}</p><span>${d[i].category}</span></div></div>
                     <div class ="item _B">${answer}</div>
                     </div>`;
-
+                }
                 //localData[i].category + ' ' + localData[i].data1 + '<br>';
+
+
+
                 document.getElementById('whole').innerHTML = html;
 
             }
+
+
+
             for (let i = 0; i < len; i++) {
 
                 let elemId = `A${i}`;
@@ -365,6 +450,7 @@
                 }));
                 if (sheetName == "enData") {
                     createTable(convertedData);
+
                 }
                 return convertedData; // 非同期処理の結果を返す
             } catch (error) {
@@ -376,9 +462,32 @@
 
         async function fetchData() {
             localData = await getDataFromGAS('localData');
-            enData = await getDataFromGAS('enData');
+            for (var i = 0; i < localData.length; i++) {
+                categoryArray.push(localData[i].type)
+            }
+            categoryArray = Array.from(new Set(categoryArray));
+
+
+            var tab = `<ul class="tabs">`;
+
+
+            for (var i = 0; i < categoryArray.length; i++) {
+                if (i == 0) {
+                    tab += `<li class="tab active"><a href="#category${i}">${categoryArray[i]}</a></li>`
+                } else {
+                    tab += `<li class="tab"><a href="#category${i}">${categoryArray[i]}</a></li>`
+
+                }
+            }
+            document.getElementById("tab").innerHTML = tab + "</ul>"
+
+            console.log(categoryArray)
+
+
             zhData = await getDataFromGAS('zhData');
             deData = await getDataFromGAS('deData');
+            enData = await getDataFromGAS('enData');
+
 
             console.log(localData); // 取得したデータを確認
             console.log(enData);
@@ -414,13 +523,15 @@
     <div class="tbox"><label class="toggle-button">
             <input type="checkbox" id="toggleSwitch" />
         </label>
-        <p class="tlans">隣で読む</p>
+        <p class="tlans">向きを変える</p>
     </div>
     <div id="sample1">
         <span class="langCng en selected" lang="en-US" onClick="langSet('en-US')">英語/English</span>
         <span class="langCng zh" lang="zh" onClick="langSet('zh')">中国語/中文</span>
         <span class="langCng de" lang="de" onClick="langSet('de')">ドイツ語/Deutsch</span>
 
+    </div>
+    <div id="tab">
     </div>
     <div id="whole">
     </div>
