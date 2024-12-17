@@ -177,6 +177,8 @@
         /* 下線 */
         margin: 0;
         padding: 0;
+        height: 10px;
+            font-size: small;
     }
 
     /* 各タブのスタイル */
@@ -414,7 +416,7 @@
                     for (var j = 0; j < localData[i].data.length; j++) {
                         if (localData[i].data[j].length > 0) {
                             answer +=
-                                `<div class="smallB" id="B${i}-${j}" ><p class="ja_text tlans">${localData[i].data[j]}</p><p class="lan"  >${d[i].data[j]}</p></div>`
+                                `<div class="smallB" id="B${i}-${j}" ><p class="ja_text tlans1">${localData[i].data[j]}</p><p class="lan"  >${d[i].data[j]}</p></div>`
                         }
                     }
                 }
