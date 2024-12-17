@@ -133,8 +133,8 @@
         </table>
         <div id="elapsed-time"></div>
     </div>
-    <button id="start-button">陣痛開始</button>
-    <button id="end-button">カウント終了</button>
+    <button id="start-button">Contraction Start</button>
+    <button id="end-button">Stop Counter</button>
     <button id="save-button" style="display:none;">データ保存</button>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -154,7 +154,7 @@
                 if (!isTiming) {
                     // 陣痛開始
                     startTime = new Date();
-                    button.textContent = '陣痛終了';
+                    button.textContent = 'Contraction Stop';
                     isTiming = true;
 
                     // 前回の「陣痛終了」からの間隔を計算
