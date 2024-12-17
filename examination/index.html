@@ -366,7 +366,49 @@
             <label>
                 <input type="radio" name="bedtime" value="before"> 無し/${number[indexLanguage][7]}
             </label>
-        </fieldset>`
+        </fieldset>
+        <br>
+        <fieldset>
+            1日の摂取上限回数：1日
+            <select id="timesPerDay1" name="timesPerDay1">
+            <!-- 1〜10まで選択可能 -->
+            <option value="" disabled selected>選択してください</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+        </select>
+        回まで
+        </fieldset>
+        <br>
+        <fieldset>
+            時間間隔：
+            <select id="timesPerDay2" name="timesPerDay2">
+            <!-- 1〜10まで選択可能 -->
+            <option value="" disabled selected>選択してください</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+        </select>
+            時間あけて摂取してください
+        </fieldset>
+        
+        
+        
+        `
 
                 } else {
                     for (var j = 0; j < localData[i].data.length; j++) {
