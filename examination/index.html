@@ -289,6 +289,7 @@
         width: 99%;
         display: flex;
         justify-content: space-between;
+        overflow-x: auto;
     }
 
     .counter p {
@@ -309,7 +310,7 @@
     }
 
     .counter_tani p {
-        padding: 18px;
+        padding: 5px;
         cursor: pointer;
         border-radius: 5px;
         background-color: #e0e0e0;
@@ -329,13 +330,33 @@
             ["〇 Mal am Tag", "Frühstück", "Mittagessen", "Abendessen", "Schlafenszeit", "vorher", "nachher",
                 "keine"
             ]
-             ["〇 lần một ngày", "bữa sáng", "bữa trưa", "bữa tối", "trước khi ngủ", "trước", "sau", "không có"],
-    ["〇 vezes por dia", "café da manhã", "almoço", "jantar", "antes de dormir", "antes", "depois", "nenhum"],
-    ["하루에 〇 번", "아침 식사", "점심 식사", "저녁 식사", "잠자기 전", "이전", "이후", "없음"],
-             ["〇 beses sa isang araw", "almusal", "tanghalian", "hapunan", "bago matulog", "bago", "pagkatapos", "wala"]
+            ["〇 lần một ngày", "bữa sáng", "bữa trưa", "bữa tối", "trước khi ngủ", "trước", "sau", "không có"],
+            ["〇 vezes por dia", "café da manhã", "almoço", "jantar", "antes de dormir", "antes", "depois",
+                "nenhum"
+            ],
+            ["하루에 〇 번", "아침 식사", "점심 식사", "저녁 식사", "잠자기 전", "이전", "이후", "없음"],
+            ["〇 beses sa isang araw", "almusal", "tanghalian", "hapunan", "bago matulog", "bago", "pagkatapos",
+                "wala"
+            ]
         ]
+        var number1 = [
+            // 英語
+            ["hours ago", "days ago", "weeks ago", "times"],
+            // 中国語
+            ["小时前", "天前", "周前", "次"],
+            // ドイツ語
+            ["Stunden vorher", "Tage vorher", "Wochen vorher", "Mal"],
+            // ベトナム語
+            ["giờ trước", "ngày trước", "tuần trước", "lần"],
+            // ポルトガル語
+            ["horas atrás", "dias atrás", "semanas atrás", "vezes"],
+            // 韓国語
+            ["시간 전", "일 전", "주 전", "회"],
+            // タガログ語
+            ["oras ang nakalipas", "araw ang nakalipas", "linggo ang nakalipas", "beses"]
+        ];
 
-        var languageArray = ["en-US", "zh", "de","ve","pr","ko","tg"]
+        var languageArray = ["en-US", "zh", "de", "ve", "pr", "ko", "tg"]
         var dataArray = []
         var localData = [];
         var enData = [];
@@ -405,10 +426,10 @@
                     </div>
 
                     <div class = "counter_tani">
-                    <p class ='ii'>日前</p>
-                    <p class ='ii'>週間前</p>
-                    <p class ='ii'>ヶ月前</p>
-                    <p class ='ii'>回</p>
+                    <p class ='ii'>時間前/${number1[indexLanguage][0]}</p>
+                    <p class ='ii'>日前/${number1[indexLanguage][1]}</p>
+                    <p class ='ii'>週間前/${number1[indexLanguage][2]}</p>
+                    <p class ='ii'>回/${number1[indexLanguage][3]}</p>
                     </div>
                     `
 
@@ -614,39 +635,21 @@
                 detailArray[i] = Array.from(new Set(detailArray[i]));
             }
 
-            var tab = ``;
-
-
+            var tab = `<select id="categorySelect">
+             <option value="">カテゴリを選択</option>`;
             for (var i = 0; i < categoryArray.length; i++) {
-                if (i == 0) {
-                    var text = "";
-                    for (let item in detailArray[categoryArray[i]]) {
-                        text += `<p> ${detailArray[categoryArray[i]][item]} </p>`
-                    }
-
-                    tab += `<details class="accordion active">
-                        <summary><a href="#category${i}">${categoryArray[i]}</a></summary>
-                        ${text}
-                        </details>`
-                } else {
-                    var text = "";
-                    for (let item in detailArray[categoryArray[i]]) {
-                        text += `<p> ${detailArray[categoryArray[i]][item]} </p>`
-                    }
-
-                    tab += `
-                    <details class="accordion">
-                        <summary>
-                        <a href="#category${i}">
-                            ${categoryArray[i]}
-                        </a>
-                        </summary>
-                        ${text}
-                        </details>`
-
-                }
+                tab += `<option value="category${i}">${categoryArray[i]}</option>`;
             }
-            document.getElementById("tab").innerHTML = tab + "</ul>"
+            tab += `</select>`;
+            document.getElementById("tab").innerHTML = tab;
+
+            // セレクトボックスのイベント設定
+            document.getElementById("categorySelect").addEventListener("change", function () {
+                var target = this.value;
+                if (target) {
+                    location.hash = target; // 該当カテゴリーにスクロール
+                }
+            });
 
             console.log(categoryArray)
 
@@ -688,16 +691,16 @@
                 <div class="langCng zh" lang="zh" onClick="langSet('zh')">中国語/中文</div>
                 <div class="langCng de" lang="de" onClick="langSet('de')">ドイツ語/Deutsch</div>
                 <div class="langCng ve" lang="ve" onClick="langSet('ve')">ベトナム語/Tiếng Việt</div>
-        <div class="langCng pr" lang="pr" onClick="langSet('pr')">ポルトガル語/Português</div>
-        <div class="langCng ko" lang="ko" onClick="langSet('ko')">韓国語/한국어</div>
+                <div class="langCng pr" lang="pr" onClick="langSet('pr')">ポルトガル語/Português</div>
+                <div class="langCng ko" lang="ko" onClick="langSet('ko')">韓国語/한국어</div>
                 <div class="langCng tg" lang="tg" onClick="langSet('tg')">タガログ語/Tagalog</div>
-                
 
-            </div>
-            <div id="tab">
+
             </div>
         </div>
         <div id="right">
+            <div id="tab">
+            </div>
             <div id="whole">
             </div>
         </div>
